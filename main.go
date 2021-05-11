@@ -18,23 +18,23 @@ const (
 	qos       = 1
 )
 
-var pin rpio.Pin
-
-func handleMessage(client mqtt.Client, message mqtt.Message) {
-	val := string(message.Payload())
-	log.Printf("Message received: %s", val)
-	switch val {
-	case "on":
-		pin.High()
-	case "off":
-		pin.Low()
+func messageHandler(pin rpio.Pin) mqtt.MessageHandler {
+	return func(client mqtt.Client, message mqtt.Message) {
+		val := string(message.Payload())
+		log.Printf("Message received: %s", val)
+		switch val {
+		case "on":
+			pin.High()
+		case "off":
+			pin.Low()
+		}
 	}
 }
 
 func main() {
 	rpio.Open()
 	defer rpio.Close()
-	pin = rpio.Pin(lampPin)
+	pin := rpio.Pin(lampPin)
 
 	clientOptions := mqtt.NewClientOptions()
 	clientOptions.AddBroker(brokerUri)
@@ -48,7 +48,7 @@ func main() {
 	}
 	log.Printf("Connected to %s", brokerUri)
 
-	token = client.Subscribe(topic, qos, handleMessage)
+	token = client.Subscribe(topic, qos, messageHandler(pin))
 	token.Wait()
 
 	quit := make(chan os.Signal, 8)
