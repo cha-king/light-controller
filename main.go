@@ -37,6 +37,7 @@ func main() {
 	rpio.Open()
 	defer rpio.Close()
 	pin := rpio.Pin(lampPin)
+	pin.Output()
 
 	clientOptions := mqtt.NewClientOptions()
 	clientOptions.AddBroker(brokerUri)
