@@ -1,7 +1,9 @@
 package main
 
 import (
+	"crypto/tls"
 	"log"
+	"net/url"
 	"os"
 	"os/signal"
 	"syscall"
@@ -38,6 +40,19 @@ func main() {
 
 	clientOptions := mqtt.NewClientOptions()
 	clientOptions.AddBroker(brokerUri)
+	clientOptions.SetConnectionAttemptHandler(func(broker *url.URL, tlsCfg *tls.Config) *tls.Config {
+		log.Println("Attempting connection..")
+		return tlsCfg
+	})
+	clientOptions.SetConnectionLostHandler(func(c mqtt.Client, err error) {
+		log.Printf("Connection lost: %v", err)
+	})
+	clientOptions.SetOnConnectHandler(func(c mqtt.Client) {
+		log.Println("Connected.")
+	})
+	clientOptions.SetReconnectingHandler(func(c mqtt.Client, opts *mqtt.ClientOptions) {
+		log.Println("Reconnecting..")
+	})
 	client := mqtt.NewClient(clientOptions)
 
 	token := client.Connect()
