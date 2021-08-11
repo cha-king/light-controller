@@ -49,7 +49,10 @@ func main() {
 		log.Printf("Connection lost: %v", err)
 	})
 	clientOptions.SetOnConnectHandler(func(c mqtt.Client) {
-		log.Println("Connected.")
+		log.Printf("Connected to %s", brokerUri)
+
+		c.Subscribe(topic, qos, messageHandler(pin))
+		log.Printf("Subscribed to %s", topic)
 	})
 	clientOptions.SetReconnectingHandler(func(c mqtt.Client, opts *mqtt.ClientOptions) {
 		log.Println("Reconnecting..")
@@ -62,10 +65,6 @@ func main() {
 	if token.Error() != nil {
 		log.Fatal(token.Error())
 	}
-	log.Printf("Connected to %s", brokerUri)
-
-	token = client.Subscribe(topic, qos, messageHandler(pin))
-	token.Wait()
 
 	quit := make(chan os.Signal, 8)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
