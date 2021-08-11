@@ -51,7 +51,11 @@ func main() {
 	clientOptions.SetOnConnectHandler(func(c mqtt.Client) {
 		log.Printf("Connected to %s", brokerUri)
 
-		c.Subscribe(topic, qos, messageHandler(pin))
+		token := c.Subscribe(topic, qos, messageHandler(pin))
+		token.Wait()
+		if token.Error() != nil {
+			log.Fatalf("Subscribe failed: %v", token.Error())
+		}
 		log.Printf("Subscribed to %s", topic)
 	})
 	clientOptions.SetReconnectingHandler(func(c mqtt.Client, opts *mqtt.ClientOptions) {
