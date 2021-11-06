@@ -16,11 +16,11 @@ const (
 	lampPin   = 24
 	brokerUri = "tcp://broker.home.cha-king.com:1883"
 	topicBase = "bedroom/lamp"
-	topic     = topicBase + "/setState"
+	setTopic  = topicBase + "/setState"
 	qos       = 1
 )
 
-func messageHandler(pin rpio.Pin) mqtt.MessageHandler {
+func handleSetState(pin rpio.Pin) mqtt.MessageHandler {
 	return func(client mqtt.Client, message mqtt.Message) {
 		val := string(message.Payload())
 		log.Printf("Message received: %s", val)
@@ -51,12 +51,12 @@ func main() {
 	clientOptions.SetOnConnectHandler(func(c mqtt.Client) {
 		log.Printf("Connected to %s", brokerUri)
 
-		token := c.Subscribe(topic, qos, messageHandler(pin))
+		token := c.Subscribe(setTopic, qos, handleSetState(pin))
 		token.Wait()
 		if token.Error() != nil {
 			log.Fatalf("Subscribe failed: %v", token.Error())
 		}
-		log.Printf("Subscribed to %s", topic)
+		log.Printf("Subscribed to %s", setTopic)
 	})
 	clientOptions.SetReconnectingHandler(func(c mqtt.Client, opts *mqtt.ClientOptions) {
 		log.Println("Reconnecting..")
