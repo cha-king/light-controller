@@ -2,6 +2,7 @@ package main
 
 import (
 	"crypto/tls"
+	"fmt"
 	"log"
 	"net/url"
 	"os"
@@ -13,23 +14,32 @@ import (
 )
 
 const (
-	lampPin   = 24
-	brokerUri = "tcp://broker.home.cha-king.com:1883"
-	topicBase = "bedroom/lamp"
-	setTopic  = topicBase + "/setState"
-	qos       = 1
+	lampPin      = 24
+	brokerUri    = "tcp://broker.home.cha-king.com:1883"
+	topicBase    = "bedroom/lamp"
+	setTopic     = topicBase + "/setState"
+	getTopic     = topicBase + "/getState"
+	publishTopic = topicBase + "/state"
+	qos          = 1
 )
 
 func handleSetState(pin rpio.Pin) mqtt.MessageHandler {
 	return func(client mqtt.Client, message mqtt.Message) {
 		val := string(message.Payload())
-		log.Printf("Message received: %s", val)
+		log.Printf("Message received on topic %s: %s", setTopic, val)
 		switch val {
 		case "on":
 			pin.High()
 		case "off":
 			pin.Low()
 		}
+	}
+}
+
+func handleGetState(pin rpio.Pin) mqtt.MessageHandler {
+	return func(client mqtt.Client, message mqtt.Message) {
+		log.Printf("Message received on topic %s", getTopic)
+		publishState(pin, client)
 	}
 }
 
@@ -68,16 +78,21 @@ func main() {
 		log.Printf("Connected to %s", brokerUri)
 
 		var tokens []mqtt.Token
+
 		log.Printf("Subscribing to %s", setTopic)
 		token := c.Subscribe(setTopic, qos, handleSetState(pin))
 		tokens = append(tokens, token)
 
+		log.Printf("Subscribing to %s", getTopic)
+		token = c.Subscribe(getTopic, qos, handleGetState(pin))
+		tokens = append(tokens, token)
+
 		for _, token := range tokens {
-		token.Wait()
+			token.Wait()
 			err := token.Error()
 			if err != nil {
 				panic(err)
-		}
+			}
 		}
 		log.Println("Subscribed")
 
