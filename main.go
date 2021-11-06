@@ -80,6 +80,8 @@ func main() {
 		}
 		}
 		log.Println("Subscribed")
+
+		publishState(pin, c)
 	})
 	clientOptions.SetReconnectingHandler(func(c mqtt.Client, opts *mqtt.ClientOptions) {
 		log.Println("Reconnecting..")
