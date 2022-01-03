@@ -33,21 +33,21 @@ jobs:
 
       - name: Package code
         run: |
-          mkdir light-controller_${{ github.ref_name }}_armv6l
-          mkdir -p light-controller_${{ github.ref_name }}_armv6l/usr/local/bin
-          mkdir -p light-controller_${{ github.ref_name }}_armv6l/etc/systemd/system
-          cp light-controller light-controller_${{ github.ref_name }}_armv6l/usr/local/bin/
-          cp light-controller.service light-controller_${{ github.ref_name }}_armv6l/etc/systemd/system/
+          mkdir light-controller_${{ github.ref_name }}_armhf
+          mkdir -p light-controller_${{ github.ref_name }}_armhf/usr/local/bin
+          mkdir -p light-controller_${{ github.ref_name }}_armhf/etc/systemd/system
+          cp light-controller light-controller_${{ github.ref_name }}_armhf/usr/local/bin/
+          cp light-controller.service light-controller_${{ github.ref_name }}_armhf/etc/systemd/system/
 
       - name: Package deb
         id: package-deb
         uses: cha-king/build-deb-action@v2.4.2
         with:
           package: light-controller
-          package_root: light-controller_${{ github.ref_name }}_armv6l
+          package_root: light-controller_${{ github.ref_name }}_armhf
           maintainer: Charlie King
           version: ${{ github.ref_name }}
-          arch: armv6l
+          arch: armhf
           desc: Simple MQTT light controller
 
       - name: Upload deb package
