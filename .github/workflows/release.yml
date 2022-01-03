@@ -40,7 +40,7 @@ jobs:
           cp light-controller.service light-controller_${{ github.ref }}_armv6l/etc/systemd/system/
 
       - name: Package deb
-        uses: cha-king/build-deb-action
+        uses: cha-king/build-deb-action@v2
         with:
           package: light-controller
           package_root: light-controller_${{ github.ref }}_armv6l
