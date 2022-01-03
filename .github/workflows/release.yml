@@ -30,12 +30,31 @@ jobs:
         uses: actions/checkout@v2
       - name: Build
         run: GOARCH=arm GOARM=6 GOOS=linux go build
-      - name: Upload binary
+
+      - name: Package code
+        run: |
+          mkdir light-controller_${{ github.ref }}_armv6l
+          mkdir -p light-controller_${{ github.ref }}_armv6l/usr/local/bin
+          mkdir -p light-controller_${{ github.ref }}_armv6l/etc/systemd/system
+          cp light-controller light-controller_${{ github.ref }}_armv6l/usr/local/bin/
+          cp light-controller.service light-controller_${{ github.ref }}_armv6l/etc/systemd/system/
+
+      - name: Package deb
+        uses: cha-king/build-deb-action
+        with:
+          package: light-controller
+          package_root: light-controller_${{ github.ref }}_armv6l
+          maintainer: Charlie King
+          version: ${{ github.ref }}
+          arch: armv6l
+          desc: Simple MQTT light controller
+
+      - name: Upload deb package
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ needs.create-release.outputs.upload_url }}
-          asset_path: ./light-controller
-          asset_name: light-controller
+          asset_path: ./light-controller.deb
+          asset_name: light-controller.deb
           asset_content_type: application/octet-stream
