@@ -1,0 +1,40 @@
+name: Create Release
+on: 
+  push:
+    tags:
+      - v[0-9]+.[0-9]+.[0.9]
+
+jobs:
+  create-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create release
+        id: create-release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: {{ github.ref }}
+          release_name: {{ github.ref }}
+          draft: true
+    outputs:
+      upload_url: ${{ steps.create-release.outputs.upload_url }}
+
+  build-and-upload:
+    needs: [create-release]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup Go
+        uses: actions/setup-go@v2
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Build
+        run: GOARCH=armv7 GOOS=linux go build
+      - name: Upload binary
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.create-release.output.upload_url }}
+          asset_path: ./light-controller
+          asset_name: light-controller
