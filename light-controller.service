@@ -1,0 +1,11 @@
+[Unit]
+Description=Simple MQTT light controller
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/light-controller
+
+[Install]
+WantedBy=multi-user.target
