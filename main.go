@@ -14,13 +14,13 @@ import (
 )
 
 const (
-	lampPin      = 24
-	brokerUri    = "tcp://broker.home.cha-king.com:1883"
-	topicBase    = "bedroom/lamp"
-	setTopic     = topicBase + "/setState"
-	getTopic     = topicBase + "/getState"
-	publishTopic = topicBase + "/state"
-	qos          = 1
+	lampPin     = 24
+	brokerUri   = "tcp://broker.home.cha-king.com:1883"
+	topicBase   = "bedroom/lamp"
+	onTopic     = topicBase + "/on"
+	setOnTopic  = topicBase + "/setOn"
+	onlineTopic = topicBase + "/online"
+	qos         = 0
 )
 
 func handleSetState(pin rpio.Pin) mqtt.MessageHandler {
