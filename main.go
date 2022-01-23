@@ -2,6 +2,7 @@ package main
 
 import (
 	"crypto/tls"
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/url"
@@ -23,14 +24,19 @@ const (
 	qos         = 0
 )
 
-func handleSetState(pin rpio.Pin) mqtt.MessageHandler {
+func handleSetOn(pin rpio.Pin) mqtt.MessageHandler {
 	return func(client mqtt.Client, message mqtt.Message) {
-		val := string(message.Payload())
-		log.Printf("Message received on topic %s: %s", setTopic, val)
-		switch val {
-		case "on":
+		payload := message.Payload()
+		var val bool
+		err := json.Unmarshal(payload, &val)
+		if err != nil {
+			log.Printf("Unable to decode message JSON: %s", payload)
+			return
+		}
+		log.Printf("Message received on topic %s: %s", onTopic, val)
+		if val {
 			pin.High()
-		case "off":
+		} else {
 			pin.Low()
 		}
 	}
