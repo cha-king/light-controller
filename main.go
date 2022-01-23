@@ -46,17 +46,9 @@ func publishOn(pin rpio.Pin, client mqtt.Client) {
 	state := pin.Read()
 	var message []byte
 	if state == rpio.High {
-		var err error
-		message, err = json.Marshal(true)
-		if err != nil {
-			panic(err)
-		}
+		message = []byte("true")
 	} else if state == rpio.Low {
-		var err error
-		message, err = json.Marshal(false)
-		if err != nil {
-			panic(err)
-		}
+		message = []byte("false")
 	} else {
 		panic(fmt.Errorf("unknown pin state %v", state))
 	}
