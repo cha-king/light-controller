@@ -42,18 +42,26 @@ func handleSetOn(pin rpio.Pin) mqtt.MessageHandler {
 	}
 }
 
-func publishState(pin rpio.Pin, client mqtt.Client) {
+func publishOn(pin rpio.Pin, client mqtt.Client) {
 	state := pin.Read()
-	var message string
+	var message []byte
 	if state == rpio.High {
-		message = "on"
+		var err error
+		message, err = json.Marshal(true)
+		if err != nil {
+			panic(err)
+		}
 	} else if state == rpio.Low {
-		message = "off"
+		var err error
+		message, err = json.Marshal(false)
+		if err != nil {
+			panic(err)
+		}
 	} else {
 		panic(fmt.Errorf("unknown pin state %v", state))
 	}
 
-	token := client.Publish(publishTopic, qos, false, message)
+	token := client.Publish(onTopic, qos, true, message)
 	token.Wait()
 	log.Printf("Published state %v", state)
 }
