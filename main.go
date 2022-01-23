@@ -42,13 +42,6 @@ func handleSetOn(pin rpio.Pin) mqtt.MessageHandler {
 	}
 }
 
-func handleGetState(pin rpio.Pin) mqtt.MessageHandler {
-	return func(client mqtt.Client, message mqtt.Message) {
-		log.Printf("Message received on topic %s", getTopic)
-		publishState(pin, client)
-	}
-}
-
 func publishState(pin rpio.Pin, client mqtt.Client) {
 	state := pin.Read()
 	var message string
