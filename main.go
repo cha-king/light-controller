@@ -33,10 +33,13 @@ func handleSetOn(pin rpio.Pin) mqtt.MessageHandler {
 			log.Printf("Unable to decode message JSON: %s", payload)
 			return
 		}
-		log.Printf("Message received on topic %s: %s", onTopic, val)
+		log.Printf("Message received on topic %s: %t", onTopic, val)
+
 		if val {
+			log.Println("Setting pin high")
 			pin.High()
 		} else {
+			log.Println("Setting pin low")
 			pin.Low()
 		}
 	}
@@ -76,6 +79,7 @@ func main() {
 	clientOptions.SetOnConnectHandler(func(c mqtt.Client) {
 		log.Printf("Connected to %s", brokerUri)
 
+		log.Println("Publishing online status")
 		c.Publish(onlineTopic, qos, true, []byte("true"))
 
 		var tokens []mqtt.Token
