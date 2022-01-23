@@ -76,6 +76,8 @@ func main() {
 	clientOptions.SetOnConnectHandler(func(c mqtt.Client) {
 		log.Printf("Connected to %s", brokerUri)
 
+		c.Publish(onlineTopic, qos, true, []byte("true"))
+
 		var tokens []mqtt.Token
 
 		log.Printf("Subscribing to %s", setTopic)
@@ -100,6 +102,7 @@ func main() {
 	clientOptions.SetReconnectingHandler(func(c mqtt.Client, opts *mqtt.ClientOptions) {
 		log.Println("Reconnecting..")
 	})
+	clientOptions.SetBinaryWill(onlineTopic, []byte("false"), qos, true)
 	client := mqtt.NewClient(clientOptions)
 
 	token := client.Connect()
