@@ -85,26 +85,18 @@ func main() {
 		log.Println("Publishing online status")
 		c.Publish(onlineTopic, qos, true, []byte("true"))
 
-		var tokens []mqtt.Token
+		log.Println("Publishing light status")
+		publishOn(pin, c)
 
-		log.Printf("Subscribing to %s", setTopic)
-		token := c.Subscribe(setTopic, qos, handleSetState(pin))
-		tokens = append(tokens, token)
+		log.Printf("Subscribing to %s", setOnTopic)
+		token := c.Subscribe(setOnTopic, qos, handleSetOn(pin))
 
-		log.Printf("Subscribing to %s", getTopic)
-		token = c.Subscribe(getTopic, qos, handleGetState(pin))
-		tokens = append(tokens, token)
-
-		for _, token := range tokens {
-			token.Wait()
-			err := token.Error()
-			if err != nil {
-				panic(err)
-			}
+		token.Wait()
+		err := token.Error()
+		if err != nil {
+			panic(err)
 		}
 		log.Println("Subscribed")
-
-		publishState(pin, c)
 	})
 	clientOptions.SetReconnectingHandler(func(c mqtt.Client, opts *mqtt.ClientOptions) {
 		log.Println("Reconnecting..")
