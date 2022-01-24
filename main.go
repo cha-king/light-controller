@@ -64,6 +64,12 @@ func publishOn(pin rpio.Pin, client mqtt.Client) {
 	log.Printf("Published state %v", state)
 }
 
+func publishOnline(client mqtt.Client) {
+	token := client.Publish(onlineTopic, qos, true, []byte("true"))
+	token.Wait()
+	log.Println("Published online")
+}
+
 func main() {
 	rpio.Open()
 	defer rpio.Close()
@@ -83,7 +89,7 @@ func main() {
 		log.Printf("Connected to %s", brokerUri)
 
 		log.Println("Publishing online status")
-		c.Publish(onlineTopic, qos, true, []byte("true"))
+		publishOnline(c)
 
 		log.Println("Publishing light status")
 		publishOn(pin, c)
