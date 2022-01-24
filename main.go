@@ -44,7 +44,7 @@ func handleSetOn(pin rpio.Pin) mqtt.MessageHandler {
 		}
 
 		log.Println("Publishing light state")
-		publishOn(pin, client)
+		go publishOn(pin, client)
 	}
 }
 
