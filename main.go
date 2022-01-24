@@ -44,11 +44,11 @@ func handleSetOn(pin rpio.Pin) mqtt.MessageHandler {
 		}
 
 		log.Println("Publishing light state")
-		go publishOn(pin, client)
+		go publishOn(client, pin)
 	}
 }
 
-func publishOn(pin rpio.Pin, client mqtt.Client) {
+func publishOn(client mqtt.Client, pin rpio.Pin) {
 	state := pin.Read()
 	var message []byte
 	if state == rpio.High {
@@ -92,7 +92,7 @@ func main() {
 		publishOnline(c)
 
 		log.Println("Publishing light status")
-		publishOn(pin, c)
+		publishOn(c, pin)
 
 		log.Printf("Subscribing to %s", setOnTopic)
 		token := c.Subscribe(setOnTopic, qos, handleSetOn(pin))
